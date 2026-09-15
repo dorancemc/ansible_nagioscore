@@ -1,13 +1,13 @@
 # Nagios Core
 
-Deploy and configure Nagios Core with Apache, optional NRDP and PNP4Nagios, and monitoring object definitions.
+Install and configure Nagios Core with Apache, optional NRDP and PNP4Nagios.
 
-By default the role writes the base monitoring objects only where nothing exists yet, so it can share a server with another role that owns the configuration.
+This role installs the engine only. Monitoring objects (hosts, services, contacts, groups, templates) belong to [`ansible_nagiosconfig`](https://github.com/dorancemc/ansible_nagiosconfig). A shipped `bootstrap.cfg` provides minimal self-contained objects so a fresh install passes `nagios -v` and starts cleanly.
 
 ## Requirements
 
 - Ansible 2.20 or newer
-- Target hosts running Enterprise Linux 9 (AlmaLinux, Rocky, RHEL, Oracle Linux), Debian 13, or Ubuntu 24.04
+- Enterprise Linux 9 (AlmaLinux, Rocky, RHEL, Oracle Linux), Debian 13, or Ubuntu 24.04
 - Root privileges on target hosts
 
 Amazon Linux 2023 is not supported.
@@ -26,22 +26,15 @@ nagios.example.com ansible_host=192.168.243.220
     - role: dorancemc.ansible_nagioscore
 ```
 
-Apply the full role:
-
 ```bash
 ansible-playbook --limit nagios playbook.yml --tags nagioscore
 ```
 
-Apply configuration only:
-
-```bash
-ansible-playbook --limit nagios playbook.yml --tags nagioscore-config
-```
-
-Tags: `nagioscore`, `nagioscore-install`, `nagioscore-config`, `nagioscore-apache-config`, `nagioscore-nrdp`, `nagioscore-nrdp-config`, `nagioscore-pnp4nagios`.
+Tags: `nagioscore`, `nagioscore-install`, `nagioscore-apache-config`, `nagioscore-nrdp`, `nagioscore-nrdp-config`, `nagioscore-pnp4nagios`.
 
 ## Variables
 
-Variables and their default values live in `defaults/`. They are not repeated here.
+Defaults live in `defaults/`. Key items:
 
-Credentials come from inventory vault variables: `vault_nagiosadmin_password`, `vault_rouser_password`, `vault_nrdp_mysecrettoken` and `vault_nrdp_myothertoken`.
+- `nagioscore_htpasswd_users` — dict of `user: {password, state}` for the Apache `AuthUserFile`.
+- Vault credentials: `vault_nagiosadmin_password`, `vault_rouser_password`, `vault_nrdp_mysecrettoken`, `vault_nrdp_myothertoken`.

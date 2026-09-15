@@ -1,6 +1,15 @@
 # Changelog
 
 All important changes to this role are listed here.
+
+## [4.0.0] - 2026-08-20
+
+- **Breaking: monitoring objects moved out of this role.** Hosts, services, contacts, contactgroups, hostgroups, servicegroups, commands and all object templates are now owned by [`ansible_nagiosconfig`](https://github.com/dorancemc/ansible_nagiosconfig), which supports both Nagios Core and Nagios XI from the same data. Removed: the `nagioscore-config` tag, the `nagios_contacts`, `nagios_contactgroup`, `nagios_hostgroups`, `nagios_servicegroups`, `nagios_commands_definition`, `nagios_*_templates`, `nagios_timeperiods`, `nagios_base_path`, `nagios_hosts_path`, `nagios_clean_assets` and `nagioscore_config_mode` variables, and the object templates under `templates/nagios/etc/{assets,templates}`. `nagios.cfg`, `cgi.cfg`, `resource.cfg` and the `cfg_dir` directories stay here.
+- **Breaking: the htpasswd file has its own variable.** Web users come from `nagioscore_htpasswd_users` (`user: {password, state}`) instead of the password field of `nagios_contacts`. Apache and its `AuthUserFile` are owned by this role, the contact objects are not.
+- **Breaking: extra plugins moved to `ansible_nagiosconfig`.** `nagios_extra_plugins` is gone from this role. The commands that call those plugins are defined by `ansible_nagiosconfig`, which now downloads them into the `plugins_path` of whichever target it configures — Nagios Core or Nagios XI. Rename the variable to `nagiosconfig_extra_plugins`.
+- **New `bootstrap.cfg`.** One self-contained host, service, contact, contactgroup, timeperiod and check command — Nagios refuses to start without at least one contact — so a fresh install with no objects still passes `nagios -v` and starts. It lives outside the directories `ansible_nagiosconfig` owns, so its `rsync --delete` never removes it. The perfdata processing commands stay in `ansible_nagiosconfig` — defining them here too would be a duplicate definition, and Nagios does not validate them at pre-flight.
+- **`install_pnp4nagios` switches pnp4nagios off completely.** Until now the switch only guarded `tasks/pnp4nagios.yaml`, so a host with `install_pnp4nagios: false` still got the compiler and rrdtool (`rrdtool_packages` in `tasks/Debian.yaml` and `tasks/RedHat.yaml`) and still had `npcd` started by `tasks/services.yaml`, which fails on a fresh host because the unit was never created. Both are now conditional on the switch, whose default stays `true`. Nothing is uninstalled: what is already under `/usr/local/pnp4nagios` stays until it is removed by hand.
+
 ## [3.0.2] - 2026-08-19
 
 - Added service management, systemd overrides for nagios, and update host definition parsing logic

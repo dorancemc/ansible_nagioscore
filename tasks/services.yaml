@@ -4,9 +4,6 @@
     name: "{{ __nagioscore_svc }}"
     state: started
     enabled: true
-  loop:
-    - "{{ apache.service_name }}"
-    - "{{ nagios.service_name }}"
-    - npcd
+  loop: "{{ [ apache.service_name, nagios.service_name ] + ([ 'npcd' ] if install_pnp4nagios | bool else []) }}"
   loop_control:
     loop_var: __nagioscore_svc

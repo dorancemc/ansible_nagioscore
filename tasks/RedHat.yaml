@@ -69,6 +69,7 @@
   ansible.builtin.dnf:
     name: "{{ rrdtool_packages }}"
     state: present
+  when: install_pnp4nagios | bool
 
 - name: Create nagios systemd override directory
   ansible.builtin.file:
